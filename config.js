@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-import assert from "assert";
 
 dotenv.config();
 
@@ -16,8 +15,7 @@ const {
 } = process.env;
 
 
-assert(PORT, "Port is required");
-assert(HOST, "Host is required");
+
 
 export default {
   port: PORT || 5000,

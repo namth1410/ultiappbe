@@ -1,6 +1,6 @@
 import cors from "cors";
 import express from "express";
-import { collection, query, getDocs } from "firebase/firestore";
+import { collection, getDocs, query } from "firebase/firestore";
 import config from "./config.js";
 import { firestore } from "./firebase.js";
 
