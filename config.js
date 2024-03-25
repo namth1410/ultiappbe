@@ -19,7 +19,7 @@ assert(PORT, "Port is required");
 assert(HOST, "Host is required");
 
 export default {
-  port: PORT,
+  port: PORT || 5000,
   host: HOST,
   hostUrl: HOST_URL,
   firebaseConfig: {
