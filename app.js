@@ -30,7 +30,7 @@ app.get("/getClasses", async (req, res) => {
     res.status(500).json({ error: "Error fetching classes" });
   }
 });
-const hostUrl = "https://ultiapp-255c3.firebaseapp.com:5000"
-app.listen(5000, () =>
-  console.log(`Server is live @ ${hostUrl}`)
+
+app.listen(config.port, () =>
+  console.log(`Server is live @ ${config.hostUrl}`)
 );
