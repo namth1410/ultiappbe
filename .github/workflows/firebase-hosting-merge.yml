@@ -20,6 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: npm install
+        env:
+          CI: false
       - run: npm start
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
