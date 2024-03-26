@@ -7,7 +7,7 @@ import admin from "firebase-admin";
 import { collection, getDocs, query } from "firebase/firestore";
 import config from "./config.js";
 import { firestore } from "./firebase.js";
-import serviceAccount from "./serviceAccountKey.json";
+import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -17,30 +17,50 @@ const csrfMiddleware = csrf({ cookie: true });
 const app = express();
 app.use(bodyParser.json());
 app.use(cookieParser());
-app.use(csrfMiddleware);
-app.use(cors());
+// app.use(csrfMiddleware);
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://ultiapp-255c3.web.app",
+];
+const corsOptions = {
+  origin: function (origin, callback) {
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  exposedHeaders: ["Set-Cookie"],
+};
+
+app.use(cors(corsOptions));
+
 app.use(express.json());
 
-app.all("*", (req, res, next) => {
-  res.cookie("XSRF-TOKEN", req.csrfToken());
-  next();
-});
+// app.all("*", (req, res, next) => {
+//   res.cookie("XSRF-TOKEN", req.csrfToken());
+//   next();
+// });
 
 app.post("/sessionLogin", (req, res) => {
+  console.log(req.body);
   const idToken = req.body.idToken.toString();
-
   const expiresIn = 60 * 60 * 24 * 5 * 1000;
+  console.log("Cookies:", req.cookies);
 
   admin
     .auth()
     .createSessionCookie(idToken, { expiresIn })
     .then(
       (sessionCookie) => {
-        const options = { maxAge: expiresIn, httpOnly: true };
+        const options = { maxAge: expiresIn, httpOnly: false, secure: false };
         res.cookie("session", sessionCookie, options);
         res.end(JSON.stringify({ status: "success" }));
+        console.log(sessionCookie);
       },
       (error) => {
+        console.log(error);
         res.status(401).send("UNAUTHORIZED REQUEST!");
       }
     );
@@ -51,7 +71,15 @@ app.get("/sessionLogout", (req, res) => {
   res.redirect("/login");
 });
 
-app.get("/getClasses", async (req, res) => {
+const checkCookie = (req, res, next) => {
+  if (!req.cookies.session) {
+    res.redirect(config.redirectUrl); // Chuyển hướng đến trang đăng nhập nếu không có cookie
+  } else {
+    next(); // Chuyển tiếp yêu cầu nếu có cookie
+  }
+};
+
+app.get("/getClasses", checkCookie, async (req, res) => {
   try {
     const q = query(collection(firestore, "classes"));
     const querySnapshot = await getDocs(q);

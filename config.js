@@ -12,10 +12,8 @@ const {
   STORAGE_BUCKET,
   MESSAGING_SENDER_ID,
   APP_ID,
+  REDIRECT_URL,
 } = process.env;
-
-
-
 
 export default {
   port: PORT || 5000,
@@ -29,4 +27,5 @@ export default {
     messagingSenderId: MESSAGING_SENDER_ID,
     appId: APP_ID,
   },
+  redirectUrl: REDIRECT_URL,
 };
