@@ -1,14 +1,13 @@
+import bodyParser from "body-parser";
+import cookieParser from "cookie-parser";
 import cors from "cors";
+import csrf from "csurf";
 import express from "express";
+import admin from "firebase-admin";
 import { collection, getDocs, query } from "firebase/firestore";
 import config from "./config.js";
 import { firestore } from "./firebase.js";
-const admin = require("firebase-admin");
-const cookieParser = require("cookie-parser");
-const csrf = require("csurf");
-const bodyParser = require("body-parser");
-
-var serviceAccount = require("./serviceAccountKey.json");
+import serviceAccount from "./serviceAccountKey.json";
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
