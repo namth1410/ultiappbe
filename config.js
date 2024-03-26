@@ -13,6 +13,7 @@ const {
   MESSAGING_SENDER_ID,
   APP_ID,
   REDIRECT_URL,
+  PATH_KEY,
 } = process.env;
 
 export default {
@@ -28,4 +29,5 @@ export default {
     appId: APP_ID,
   },
   redirectUrl: REDIRECT_URL,
+  pathKey: PATH_KEY,
 };

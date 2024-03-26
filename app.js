@@ -7,7 +7,9 @@ import admin from "firebase-admin";
 import { collection, getDocs, query } from "firebase/firestore";
 import config from "./config.js";
 import { firestore } from "./firebase.js";
-import serviceAccount from "/etc/secrets/serviceAccountKey.json" assert { type: "json" };
+import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
+import { verifySessionCookieMiddleware } from "./src/middleware/verifySessionCookie.js";
+import classRouter from "./src/routes/classRoutes.js";
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -31,12 +33,15 @@ const corsOptions = {
     }
   },
   credentials: true,
-  exposedHeaders: ["Set-Cookie"],
 };
 
 app.use(cors(corsOptions));
 
 app.use(express.json());
+
+app.use("/", verifySessionCookieMiddleware);
+
+app.use("/classes", classRouter);
 
 // app.all("*", (req, res, next) => {
 //   res.cookie("XSRF-TOKEN", req.csrfToken());
@@ -44,10 +49,8 @@ app.use(express.json());
 // });
 
 app.post("/sessionLogin", (req, res) => {
-  console.log(req.body);
   const idToken = req.body.idToken.toString();
   const expiresIn = 60 * 60 * 24 * 5 * 1000;
-  console.log("Cookies:", req.cookies);
 
   admin
     .auth()
@@ -57,7 +60,6 @@ app.post("/sessionLogin", (req, res) => {
         const options = { maxAge: expiresIn, httpOnly: false, secure: false };
         res.cookie("session", sessionCookie, options);
         res.end(JSON.stringify({ status: "success" }));
-        console.log(sessionCookie);
       },
       (error) => {
         console.log(error);
@@ -68,14 +70,31 @@ app.post("/sessionLogin", (req, res) => {
 
 app.get("/sessionLogout", (req, res) => {
   res.clearCookie("session");
-  res.redirect("/login");
+  res.redirect(config.redirectUrl);
+});
+
+app.post("/sessionLogout", (req, res) => {
+  const sessionCookie = req.cookies.session || "";
+  res.clearCookie("session");
+  admin
+    .auth()
+    .verifySessionCookie(sessionCookie)
+    .then((decodedClaims) => {
+      return admin.auth().revokeRefreshTokens(decodedClaims.sub);
+    })
+    .then(() => {
+      res.redirect(config.redirectUrl);
+    })
+    .catch((error) => {
+      res.redirect(config.redirectUrl);
+    });
 });
 
 const checkCookie = (req, res, next) => {
   if (!req.cookies.session) {
-    res.redirect(config.redirectUrl); // Chuyển hướng đến trang đăng nhập nếu không có cookie
+    res.redirect(config.redirectUrl);
   } else {
-    next(); // Chuyển tiếp yêu cầu nếu có cookie
+    next();
   }
 };
 
