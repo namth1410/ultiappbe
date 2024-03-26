@@ -3,11 +3,54 @@ import express from "express";
 import { collection, getDocs, query } from "firebase/firestore";
 import config from "./config.js";
 import { firestore } from "./firebase.js";
+const admin = require("firebase-admin");
+const cookieParser = require("cookie-parser");
+const csrf = require("csurf");
+const bodyParser = require("body-parser");
 
+var serviceAccount = require("./serviceAccountKey.json");
+
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://ultiapp-255c3.firebaseio.com",
+});
+const csrfMiddleware = csrf({ cookie: true });
 const app = express();
-
+app.use(bodyParser.json());
+app.use(cookieParser());
+app.use(csrfMiddleware);
 app.use(cors());
 app.use(express.json());
+
+app.all("*", (req, res, next) => {
+  res.cookie("XSRF-TOKEN", req.csrfToken());
+  next();
+});
+
+app.post("/sessionLogin", (req, res) => {
+  const idToken = req.body.idToken.toString();
+
+  const expiresIn = 60 * 60 * 24 * 5 * 1000;
+
+  admin
+    .auth()
+    .createSessionCookie(idToken, { expiresIn })
+    .then(
+      (sessionCookie) => {
+        const options = { maxAge: expiresIn, httpOnly: true };
+        res.cookie("session", sessionCookie, options);
+        res.end(JSON.stringify({ status: "success" }));
+      },
+      (error) => {
+        res.status(401).send("UNAUTHORIZED REQUEST!");
+      }
+    );
+});
+
+app.get("/sessionLogout", (req, res) => {
+  res.clearCookie("session");
+  res.redirect("/login");
+});
 
 app.get("/getClasses", async (req, res) => {
   try {
