@@ -68,10 +68,6 @@ app.post("/sessionLogin", (req, res) => {
     );
 });
 
-app.get("/sessionLogout", (req, res) => {
-  res.clearCookie("session");
-  res.redirect(config.redirectUrl);
-});
 
 app.post("/sessionLogout", (req, res) => {
   const sessionCookie = req.cookies.session || "";

@@ -21,9 +21,9 @@ const getUserCreatedClassesController = async (req, res) => {
 };
 
 const getUserJoinedClassesController = async (req, res) => {
-  const { currentUser } = req;
+  const { uid } = req.user;
   try {
-    const userJoinedClasses = await getUserJoinedClasses(currentUser);
+    const userJoinedClasses = await getUserJoinedClasses(uid);
     if (userJoinedClasses === null) {
       return res
         .status(404)

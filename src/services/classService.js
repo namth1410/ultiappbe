@@ -35,13 +35,13 @@ const getUserCreatedClasses = async (uid) => {
   }
 };
 
-const getUserJoinedClasses = async (currentUser) => {
+const getUserJoinedClasses = async (uid) => {
   try {
     const classesRef = collection(firestore, "classes");
     const querySnapshot = await getDocs(
       query(
         classesRef,
-        where("members", "array-contains", currentUser.uid),
+        where("members", "array-contains", uid),
         orderBy("dateCreate", "desc")
       )
     );
