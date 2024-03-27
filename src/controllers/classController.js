@@ -1,7 +1,8 @@
 import {
+  getClassById,
+  getHomeworkOfClass,
   getUserCreatedClasses,
   getUserJoinedClasses,
-  getClassById,
 } from "../services/classService.js";
 
 const getUserCreatedClassesController = async (req, res) => {
@@ -50,8 +51,23 @@ const getClassByIdController = async (req, res) => {
   }
 };
 
+const getHomworkOfClassController = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const classInfo = await getHomeworkOfClass(id);
+    if (classInfo === null) {
+      return res.status(404).json({ message: "Class not found." });
+    }
+    return res.status(200).json(classInfo);
+  } catch (error) {
+    console.error("Error in getClassByIdController:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 export {
+  getClassByIdController,
+  getHomworkOfClassController,
   getUserCreatedClassesController,
   getUserJoinedClassesController,
-  getClassByIdController,
 };

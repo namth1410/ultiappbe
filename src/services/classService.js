@@ -77,4 +77,31 @@ const getClassById = async (id) => {
   }
 };
 
-export { getUserCreatedClasses, getUserJoinedClasses, getClassById };
+const getHomeworkOfClass = async (id) => {
+  try {
+    const classesRef = collection(firestore, "homework");
+    const querySnapshot = await getDocs(
+      query(classesRef, where("class", "==", id))
+    );
+
+    if (querySnapshot.empty) {
+      return null;
+    } else {
+      const homeworkData = [];
+      querySnapshot.forEach((doc) => {
+        homeworkData.push({ id: doc.id, ...doc.data() });
+      });
+      return homeworkData;
+    }
+  } catch (error) {
+    console.error("Error fetching user joined classes:", error);
+    throw new Error("Error fetching user joined classes");
+  }
+};
+
+export {
+  getClassById,
+  getHomeworkOfClass,
+  getUserCreatedClasses,
+  getUserJoinedClasses,
+};
