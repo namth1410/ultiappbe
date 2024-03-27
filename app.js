@@ -61,7 +61,7 @@ app.post("/sessionLogin", (req, res) => {
           maxAge: expiresIn,
           httpOnly: false,
           secure: false,
-          sameSite: "lax",
+          sameSite: "none",
         };
         res.cookie("session", sessionCookie, options);
         res.end(JSON.stringify({ status: "success" }));
