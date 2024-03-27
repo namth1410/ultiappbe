@@ -19,8 +19,7 @@ export function verifySessionCookieMiddleware(req, res, next) {
     })
     .catch((error) => {
       console.log("loi verify");
-      // return res.status(401).send("Unauthorized"); // Trả về mã lỗi 401 và thông báo "Unauthorized"
       res.set("Access-Control-Allow-Origin", req.headers.origin);
-      return res.status(302).location(config.redirectUrl).end();
+      return res.status(400).send("login");
     });
 }

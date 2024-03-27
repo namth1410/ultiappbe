@@ -68,7 +68,6 @@ app.post("/sessionLogin", (req, res) => {
     );
 });
 
-
 app.post("/sessionLogout", (req, res) => {
   const sessionCookie = req.cookies.session || "";
   res.clearCookie("session");
@@ -81,11 +80,14 @@ app.post("/sessionLogout", (req, res) => {
     .then(() => {
       console.log("1");
       res.set("Access-Control-Allow-Origin", req.headers.origin);
-      return res.status(302).location(config.redirectUrl).end();
+
+      return res.status(400).send("login");
+      // return res.status(302).location(config.redirectUrl).end();
     })
     .catch((error) => {
       console.log("2");
-      return res.status(302).location(config.redirectUrl).end();
+      return res.status(400).send("login");
+      // return res.status(302).location(config.redirectUrl).end();
     });
 });
 
