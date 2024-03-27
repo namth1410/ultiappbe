@@ -83,10 +83,13 @@ app.post("/sessionLogout", (req, res) => {
       return admin.auth().revokeRefreshTokens(decodedClaims.sub);
     })
     .then(() => {
-      res.redirect(config.redirectUrl);
+      console.log("1");
+      res.set("Access-Control-Allow-Origin", req.headers.origin);
+      return res.status(302).location(config.redirectUrl).end();
     })
     .catch((error) => {
-      res.redirect(config.redirectUrl);
+      console.log("2");
+      return res.status(302).location(config.redirectUrl).end();
     });
 });
 
