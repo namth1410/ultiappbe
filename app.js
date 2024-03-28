@@ -61,10 +61,10 @@ app.post("/sessionLogin", (req, res) => {
           maxAge: expiresIn,
           httpOnly: false,
           secure: true,
-          sameSite: "none",
-          domain: config.host,
+          sameSite: "lax",
         };
         res.cookie("session", sessionCookie, options);
+        console.log(sessionCookie);
         res.end(JSON.stringify({ status: "success" }));
       },
       (error) => {
