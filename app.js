@@ -20,18 +20,8 @@ const app = express();
 app.use(bodyParser.json());
 app.use(cookieParser());
 // app.use(csrfMiddleware);
-const allowedOrigins = [
-  "http://localhost:3000",
-  "https://ultiapp-255c3.web.app",
-];
 const corsOptions = {
-  origin: function (origin, callback) {
-    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
+  origin: ["http://localhost:3000", "https://ultiapp-255c3.web.app"],
   credentials: true,
 };
 
