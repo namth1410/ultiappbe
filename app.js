@@ -62,6 +62,7 @@ app.post("/sessionLogin", (req, res) => {
           httpOnly: false,
           secure: true,
           sameSite: "none",
+          domain: config.host,
         };
         res.cookie("session", sessionCookie, options);
         res.end(JSON.stringify({ status: "success" }));
