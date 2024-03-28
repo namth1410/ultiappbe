@@ -60,7 +60,7 @@ app.post("/sessionLogin", (req, res) => {
         const options = {
           maxAge: expiresIn,
           httpOnly: false,
-          secure: false,
+          secure: true,
           sameSite: "none",
         };
         res.cookie("session", sessionCookie, options);
