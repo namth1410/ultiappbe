@@ -51,8 +51,11 @@ app.post("/sessionLogin", (req, res) => {
           maxAge: expiresIn,
           httpOnly: false,
           secure: true,
-          sameSite: "lax",
+          sameSite: "none",
+          domain: ["ultiapp-255c3.web.app", "ultiappbe.onrender.com"],
         };
+        res.setHeader("Access-Control-Allow-Private-Network", "true");
+
         res.cookie("session", sessionCookie, options);
         console.log(sessionCookie);
         res.end(JSON.stringify({ status: "success" }));
