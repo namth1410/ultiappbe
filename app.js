@@ -74,7 +74,7 @@ app.post("/sessionLogin", (req, res) => {
           httpOnly: false,
           secure: true,
           sameSite: "none",
-          domain: ["ultiapp-255c3.web.app", "localhost"],
+          domain: ["onrender.com", "ultiapp-255c3.web.app", "localhost"],
         };
         res.setHeader("Access-Control-Allow-Private-Network", "true");
 
