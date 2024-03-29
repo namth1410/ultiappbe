@@ -51,15 +51,6 @@ app.get("/getClasses", async (req, res) => {
   }
 });
 
-app.use("/", verifySessionCookieMiddleware);
-
-app.use("/classes", classRouter);
-
-// app.all("*", (req, res, next) => {
-//   res.cookie("XSRF-TOKEN", req.csrfToken());
-//   next();
-// });
-
 app.post("/sessionLogin", (req, res) => {
   const idToken = req.body.idToken.toString();
   const expiresIn = 60 * 60 * 24 * 5 * 1000;
@@ -88,6 +79,10 @@ app.post("/sessionLogin", (req, res) => {
       }
     );
 });
+
+app.use("/", verifySessionCookieMiddleware);
+
+app.use("/classes", classRouter);
 
 app.post("/sessionLogout", (req, res) => {
   const sessionCookie = req.cookies.session || "";
