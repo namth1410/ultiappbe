@@ -1,33 +1,39 @@
 import bodyParser from "body-parser";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import csrf from "csurf";
 import express from "express";
 import admin from "firebase-admin";
-import { collection, getDocs, query } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDocs,
+  query,
+  updateDoc,
+  where,
+} from "firebase/firestore";
 import config from "./config.js";
 import { firestore } from "./firebase.js";
 import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
-import { verifySessionCookieMiddleware } from "./src/middleware/verifySessionCookie.js";
+import { verifyIdTokenMiddleware } from "./src/middleware/verifyIdToken.js";
 import classRouter from "./src/routes/classRoutes.js";
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://ultiapp-255c3.firebaseio.com",
 });
-const csrfMiddleware = csrf({ cookie: true });
 const app = express();
 app.use(bodyParser.json());
 app.use(cookieParser());
-// app.use(csrfMiddleware);
 const corsOptions = {
   origin: ["http://localhost:3000", "https://ultiapp-255c3.web.app"],
-  credentials: true,
 };
 
 app.use(cors(corsOptions));
 
 app.use(express.json());
+
+app.use("/", verifyIdTokenMiddleware);
 
 app.get("/getClasses", async (req, res) => {
   try {
@@ -51,69 +57,53 @@ app.get("/getClasses", async (req, res) => {
   }
 });
 
-app.post("/sessionLogin", (req, res) => {
-  const idToken = req.body.idToken.toString();
-  const expiresIn = 60 * 60 * 24 * 5 * 1000;
-
-  admin
-    .auth()
-    .createSessionCookie(idToken, { expiresIn })
-    .then(
-      (sessionCookie) => {
-        const options = {
-          maxAge: expiresIn,
-          httpOnly: false,
-          secure: true,
-          sameSite: "none",
-          domain: ".web.app",
-        };
-        res.setHeader("Access-Control-Allow-Private-Network", "true");
-
-        res.cookie("session", sessionCookie, options);
-        console.log(sessionCookie);
-        res.end(JSON.stringify({ status: "success" }));
-      },
-      (error) => {
-        console.log(error);
-        res.status(401).send("UNAUTHORIZED REQUEST!");
-      }
+app.post("/login", async (req, res) => {
+  try {
+    const user = req.user;
+    const usersRef = collection(firestore, "users");
+    const querySnapshot = await getDocs(
+      query(usersRef, where("uid", "==", user.uid))
     );
-});
 
-app.use("/", verifySessionCookieMiddleware);
+    if (!querySnapshot.empty) {
+      const docId = querySnapshot.docs[0].id;
+      await updateDoc(doc(usersRef, docId), {
+        uid: user.uid,
+        displayName: user.name,
+        email: user.email,
+        profilePic: user.picture,
+      });
+    } else {
+      await addDoc(usersRef, {
+        uid: user.uid,
+        displayName: user.name,
+        email: user.email,
+        profilePic: user.picture,
+      });
+    }
+
+    res.status(200).send("User information updated successfully");
+  } catch (error) {
+    console.error("Error:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 app.use("/classes", classRouter);
 
-app.post("/sessionLogout", (req, res) => {
-  const sessionCookie = req.cookies.session || "";
-  res.clearCookie("session");
+app.post("/logout", (req, res) => {
+  const { uid } = req.user;
   admin
     .auth()
-    .verifySessionCookie(sessionCookie)
-    .then((decodedClaims) => {
-      return admin.auth().revokeRefreshTokens(decodedClaims.sub);
-    })
+    .revokeRefreshTokens(uid)
     .then(() => {
-      console.log("1");
-      res.set("Access-Control-Allow-Origin", req.headers.origin);
-
-      return res.status(400).send("login");
-      // return res.status(302).location(config.redirectUrl).end();
+      console.log("Đã hủy bỏ refresh token thành công");
     })
     .catch((error) => {
-      console.log("2");
-      return res.status(400).send("login");
-      // return res.status(302).location(config.redirectUrl).end();
+      console.error("Lỗi khi hủy bỏ refresh token:", error);
     });
+  res.sendStatus(200);
 });
-
-const checkCookie = (req, res, next) => {
-  if (!req.cookies.session) {
-    res.redirect(config.redirectUrl);
-  } else {
-    next();
-  }
-};
 
 app.listen(config.port, () =>
   console.log(`Server is live @ ${config.hostUrl}`)
