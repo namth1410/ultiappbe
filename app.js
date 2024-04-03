@@ -29,7 +29,11 @@ const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+      "https://ultiapp-255c3.web.app",
+      "https://ultiapp-255c3.firebaseapp.com",
+    ],
   },
 });
 app.use(bodyParser.json());
