@@ -9,6 +9,7 @@ export function verifyIdTokenMiddleware(req, res, next) {
       next();
     })
     .catch((error) => {
+      console.log(error);
       console.log("Lỗi xác thực token ở middleware");
       return res.status(401).send("Unauthorized");
     });
