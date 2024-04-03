@@ -12,17 +12,26 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import http from "http";
+import { Server } from "socket.io";
 import config from "./config.js";
 import { firestore } from "./firebase.js";
 import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
 import { verifyIdTokenMiddleware } from "./src/middleware/verifyIdToken.js";
 import classRouter from "./src/routes/classRoutes.js";
+import newsfeedRouter from "./src/routes/newsfeedRoutes.js";
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://ultiapp-255c3.firebaseio.com",
 });
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:3000",
+  },
+});
 app.use(bodyParser.json());
 app.use(cookieParser());
 const corsOptions = {
@@ -36,6 +45,19 @@ const corsOptions = {
 app.use(cors(corsOptions));
 
 app.use(express.json());
+
+io.on("connection", (socket) => {
+  console.log("New client connected");
+
+  socket.on("disconnect", () => {
+    console.log("Client disconnected");
+  });
+
+  socket.on("message", (data) => {
+    console.log("Message received:", data);
+    io.emit("message", data);
+  });
+});
 
 app.use("/", verifyIdTokenMiddleware);
 
@@ -94,6 +116,7 @@ app.post("/login", async (req, res) => {
 });
 
 app.use("/classes", classRouter);
+app.use("/newsfeed", newsfeedRouter);
 
 app.post("/logout", (req, res) => {
   const { uid } = req.user;
@@ -109,6 +132,8 @@ app.post("/logout", (req, res) => {
   res.sendStatus(200);
 });
 
-app.listen(config.port, () =>
+server.listen(config.port, () =>
   console.log(`Server is live @ ${config.hostUrl}`)
 );
+
+export { io };
