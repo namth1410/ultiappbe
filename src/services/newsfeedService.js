@@ -28,8 +28,8 @@ const snapshotNewsfeed = async (classId) => {
 
     return unsubscribe;
   } catch (error) {
-    console.error("Error fetching newsfeed:", error);
-    throw new Error("Error fetching newsfeed");
+    console.error("Error snapshotNewsfeed:", error);
+    throw new Error("Error snapshotNewsfeed");
   }
 };
 
@@ -55,8 +55,8 @@ const getNewsfeedOfClass = async (classId) => {
 
     return newsfeed;
   } catch (error) {
-    console.error("Error fetching newsfeed:", error);
-    throw new Error("Error fetching newsfeed");
+    console.error("Error getNewsfeedOfClass", error);
+    throw new Error("Error getNewsfeedOfClass");
   }
 };
 
@@ -95,13 +95,12 @@ const postNewsfeed = async (data) => {
       content: content,
       image: imageUrl,
     };
-    console.log(dataToAdd);
     await addDoc(collection(firestore, "newsfeed"), dataToAdd);
 
     return { statusCode: 200, message: "OK" };
   } catch (error) {
-    console.error("Error fetching newsfeed:", error);
-    throw new Error("Error fetching newsfeed");
+    console.error("Error postNewsfeed:", error);
+    throw new Error("Error postNewsfeed");
   }
 };
 
@@ -110,8 +109,8 @@ const deleteNewsfeed = async (newsfeedId) => {
     await deleteDoc(doc(firestore, "newsfeed", newsfeedId));
     return { statusCode: 200, message: "OK" };
   } catch (error) {
-    console.error("Error fetching newsfeed:", error);
-    throw new Error("Error fetching newsfeed");
+    console.error("Error deleteNewsfeed:", error);
+    throw new Error("Error deleteNewsfeed");
   }
 };
 
@@ -121,8 +120,8 @@ const postCommentNewsfeed = async (newfeed) => {
     await updateDoc(quizzRef, newfeed);
     return { statusCode: 200, message: "OK" };
   } catch (error) {
-    console.error("Error fetching newsfeed:", error);
-    throw new Error("Error fetching newsfeed");
+    console.error("Error postCommentNewsfeed:", error);
+    throw new Error("Error postCommentNewsfeed");
   }
 };
 

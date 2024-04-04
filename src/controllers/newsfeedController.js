@@ -50,7 +50,6 @@ const postNewsfeedController = async (req, res) => {
 
 const deleteNewsfeedController = async (req, res) => {
   const { newsfeedId } = req.params;
-  console.log(req.params);
   try {
     const newsfeed = await deleteNewsfeed(newsfeedId);
     if (newsfeed === null) {

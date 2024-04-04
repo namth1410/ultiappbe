@@ -4,9 +4,12 @@ import {
   getHomworkOfClassController,
   getUserCreatedClassesController,
   getUserJoinedClassesController,
+  snapshotController,
 } from "../controllers/classController.js";
 
 const router = Router();
+
+router.get("/snapshot/:classId", snapshotController);
 
 router.get("/user-created", getUserCreatedClassesController);
 
