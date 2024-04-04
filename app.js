@@ -19,6 +19,7 @@ import { firestore } from "./firebase.js";
 import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
 import { verifyIdTokenMiddleware } from "./src/middleware/verifyIdToken.js";
 import classRouter from "./src/routes/classRoutes.js";
+import homeworkRoutes from "./src/routes/homeworkRoutes.js";
 import memberRoutes from "./src/routes/memberRoutes.js";
 import newsfeedRouter from "./src/routes/newsfeedRoutes.js";
 
@@ -124,6 +125,7 @@ app.post("/login", async (req, res) => {
 app.use("/classes", classRouter);
 app.use("/newsfeed", newsfeedRouter);
 app.use("/member", memberRoutes);
+app.use("/homework", homeworkRoutes);
 
 app.post("/logout", (req, res) => {
   const { uid } = req.user;
