@@ -1,7 +1,12 @@
 import {
   addHomework,
   deleteHomework,
+  getAllResultOfHomework,
+  getDataHomeworkById,
+  getDataRecordsHomeworkByUID,
+  getUsersNotDoHomework,
   snapshotDataHomework,
+  updateHomeworkById,
 } from "../services/homeworkService.js";
 
 const snapshotController = async (req, res) => {
@@ -47,4 +52,83 @@ const deleteHomeworkController = async (req, res) => {
   }
 };
 
-export { addHomeworkController, deleteHomeworkController, snapshotController };
+const getUsersNotDoHomeworkController = async (req, res) => {
+  const body = req.body;
+  try {
+    const users = await getUsersNotDoHomework(body);
+    if (users === null) {
+      return res.status(200).json([]);
+    }
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in getUsersNotDoHomeworkController:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getAllResultOfHomeworkController = async (req, res) => {
+  const { homeworkId } = req.params;
+  try {
+    const users = await getAllResultOfHomework(homeworkId);
+    if (users === null) {
+      return res.status(200).json([]);
+    }
+    return res.status(200).json(users);
+  } catch (error) {
+    console.error("Error in getAllResultOfHomeworkController:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getDataRecordsHomeworkByUIDController = async (req, res) => {
+  const body = req.body;
+  try {
+    const records = await getDataRecordsHomeworkByUID(body);
+    if (records === null) {
+      return res.status(200).json([]);
+    }
+    return res.status(200).json(records);
+  } catch (error) {
+    console.error("Error in getDataRecordsHomeworkByUIDController:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const getDataHomeworkByIdController = async (req, res) => {
+  const body = req.body;
+  try {
+    const records = await getDataHomeworkById(body);
+    if (records === null) {
+      return res.status(200).json([]);
+    }
+    return res.status(200).json(records);
+  } catch (error) {
+    console.error("Error in getDataHomeworkByIdController:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+const updateHomeworkByIdController = async (req, res) => {
+  const body = req.body;
+  try {
+    const records = await updateHomeworkById(body);
+    if (records === null) {
+      return res.status(200).json([]);
+    }
+    return res.status(200).json(records);
+  } catch (error) {
+    console.error("Error in updateHomeworkByIdController:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
+export {
+  addHomeworkController,
+  deleteHomeworkController,
+  getAllResultOfHomeworkController,
+  getDataHomeworkByIdController,
+  getDataRecordsHomeworkByUIDController,
+  getUsersNotDoHomeworkController,
+  snapshotController,
+  updateHomeworkByIdController,
+};
