@@ -7,6 +7,7 @@ import {
   getUsersNotDoHomework,
   snapshotDataHomework,
   updateHomeworkById,
+  uploadFile,
 } from "../services/homeworkService.js";
 
 const snapshotController = async (req, res) => {
@@ -24,8 +25,7 @@ const snapshotController = async (req, res) => {
 };
 
 const addHomeworkController = async (req, res) => {
-  const body = { ...req.body, file: req.file };
-
+  const body = { ...req.body, ...req.file };
   try {
     const homework = await addHomework(body);
     if (homework === null) {
@@ -122,6 +122,20 @@ const updateHomeworkByIdController = async (req, res) => {
   }
 };
 
+const uploadFileController = async (req, res) => {
+  const body = { ...req.body, ...req.file };
+  try {
+    const records = await uploadFile(body);
+    if (records === null) {
+      return res.status(200).json([]);
+    }
+    return res.status(200).json(records);
+  } catch (error) {
+    console.error("Error in uploadFileController:", error);
+    return res.status(500).json({ error: "Internal server error" });
+  }
+};
+
 export {
   addHomeworkController,
   deleteHomeworkController,
@@ -131,4 +145,5 @@ export {
   getUsersNotDoHomeworkController,
   snapshotController,
   updateHomeworkByIdController,
+  uploadFileController,
 };

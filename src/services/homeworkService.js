@@ -39,11 +39,11 @@ const addHomework = async ({
   currentUser,
   correctAnswer,
   nameHomework,
-  file,
+  buffer,
   nameFile,
 }) => {
   try {
-    const fileURL = await uploadFile(file, nameFile, classId);
+    const fileURL = await uploadFile({ buffer, nameFile, classId });
     console.log(fileURL);
     const dataToAdd = {
       dateCreate: new Date().toISOString(),
@@ -194,9 +194,9 @@ const updateHomeworkById = async (body) => {
   }
 };
 
-const uploadFile = async (file, nameFile, classId) => {
+const uploadFile = async ({ buffer, classId, nameFile }) => {
   const storageRef = ref(storage, `Homework/${classId}#${nameFile}`);
-  const snapshot = await uploadBytes(storageRef, file.buffer);
+  const snapshot = await uploadBytes(storageRef, buffer);
   const downloadURL = await getDownloadURL(snapshot.ref);
   console.log("File available at", downloadURL);
   return downloadURL;
@@ -211,4 +211,5 @@ export {
   getUsersNotDoHomework,
   snapshotDataHomework,
   updateHomeworkById,
+  uploadFile,
 };

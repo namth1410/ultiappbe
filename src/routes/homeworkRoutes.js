@@ -8,7 +8,8 @@ import {
   getDataRecordsHomeworkByUIDController,
   getUsersNotDoHomeworkController,
   snapshotController,
-  updateHomeworkByIdController
+  updateHomeworkByIdController,
+  uploadFileController,
 } from "../controllers/homeworkController.js";
 
 const router = Router();
@@ -28,5 +29,6 @@ router.post(
 );
 router.post("/get-data-homework-by-id", getDataHomeworkByIdController);
 router.post("/update-homework-by-id", updateHomeworkByIdController);
+router.post("/upload-file", upload.single("file"), uploadFileController);
 
 export default router;
