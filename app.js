@@ -46,6 +46,7 @@ const corsOptions = {
     "http://localhost:3000",
     "https://ultiapp-255c3.web.app",
     "https://ultiapp-255c3.firebaseapp.com",
+    "*"
   ],
 };
 
