@@ -106,7 +106,7 @@ app.use((req, res, next) => {
       const city = data.city;
       const latitude = data.latitude;
       const longitude = data.longitude;
-      const logMessage = `${new Date().toISOString()} - ${latitude} ${longitude} - proxy: ${
+      const logMessage = `${new Date().toISOString()} - ${clientIp} - ${latitude} ${longitude} - proxy: ${
         data.is_proxy
       } - ip: ${data.ip} ${data.as}\n`;
       appendFile(join(__dirname, "public", "log.txt"), logMessage).catch(
