@@ -12,8 +12,11 @@ import {
   updateDoc,
   where,
 } from "firebase/firestore";
+import { appendFile } from "fs/promises";
 import http from "http";
+import { dirname, join } from "path";
 import { Server } from "socket.io";
+import { fileURLToPath } from "url";
 import config from "./config.js";
 import { firestore } from "./firebase.js";
 import serviceAccount from "./serviceAccountKey.json" assert { type: "json" };
@@ -22,6 +25,8 @@ import classRouter from "./src/routes/classRoutes.js";
 import homeworkRoutes from "./src/routes/homeworkRoutes.js";
 import memberRoutes from "./src/routes/memberRoutes.js";
 import newsfeedRouter from "./src/routes/newsfeedRoutes.js";
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
@@ -46,11 +51,12 @@ const corsOptions = {
     "http://localhost:3000",
     "https://ultiapp-255c3.web.app",
     "https://ultiapp-255c3.firebaseapp.com",
-    "*"
+    "*",
   ],
 };
 
 app.use(cors(corsOptions));
+app.use(express.static("public"));
 
 app.use(express.json());
 
@@ -68,6 +74,18 @@ io.on("connection", (socket) => {
 });
 
 app.use("/", verifyIdTokenMiddleware);
+
+app.use((req, res, next) => {
+  const logMessage = `${new Date().toISOString()} - ${req.method} ${
+    req.url
+  } - IP: ${req.socket.remoteAddress}\n`;
+
+  appendFile(join(__dirname, "public", "log.txt"), logMessage).catch((err) => {
+    console.error("Error writing to log file:", err);
+  });
+
+  next();
+});
 
 app.get("/getClasses", async (req, res) => {
   try {
