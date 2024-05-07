@@ -25,6 +25,9 @@ import classRouter from "./src/routes/classRoutes.js";
 import homeworkRoutes from "./src/routes/homeworkRoutes.js";
 import memberRoutes from "./src/routes/memberRoutes.js";
 import newsfeedRouter from "./src/routes/newsfeedRoutes.js";
+import requestIp from "request-ip";
+import { writeFile } from "fs/promises";
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -73,16 +76,52 @@ io.on("connection", (socket) => {
   });
 });
 
+app.get("/clear-log", async (req, res) => {
+  try {
+    await writeFile(join(__dirname, "public", "log.txt"), "");
+
+    res.status(200).send("Log cleared successfully");
+  } catch (err) {
+    console.error("Error clearing log file:", err);
+    res.status(500).send("Error clearing log file");
+  }
+});
+
 app.use("/", verifyIdTokenMiddleware);
 
 app.use((req, res, next) => {
-  const logMessage = `${new Date().toISOString()} - ${req.method} ${
-    req.url
-  } - IP: ${req.socket.remoteAddress}\n`;
-
-  appendFile(join(__dirname, "public", "log.txt"), logMessage).catch((err) => {
-    console.error("Error writing to log file:", err);
-  });
+  const clientIp = requestIp.getClientIp(req);
+  fetch(
+    `https://api.ip2location.io/?key=B95160FB27C35CDA39C6E9862AB8C644&ip=${clientIp}`
+  )
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      // Trích xuất thông tin vị trí từ đối tượng data
+      const country = data.country_name;
+      const city = data.city;
+      const latitude = data.latitude;
+      const longitude = data.longitude;
+      const logMessage = `${new Date().toISOString()} - ${latitude} ${longitude} - proxy: ${
+        data.is_proxy
+      } - ip: ${data.ip} ${data.as}\n`;
+      appendFile(join(__dirname, "public", "log.txt"), logMessage).catch(
+        (err) => {
+          console.error("Error writing to log file:", err);
+        }
+      );
+      // console.log(`Country: ${country}`);
+      // console.log(`City: ${city}`);
+      // console.log(`Latitude: ${latitude}`);
+      // console.log(`Longitude: ${longitude}`);
+    })
+    .catch((error) => {
+      console.error("There was a problem with your fetch operation:", error);
+    });
 
   next();
 });
