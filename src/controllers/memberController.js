@@ -38,7 +38,7 @@ const removeMemberFromClassController = async (req, res) => {
 };
 
 const getUserByEmailController = async (req, res) => {
-  const email = req.params;
+  const email = req.body.params;
   try {
     const user = await getUserByEmail(email);
     if (user === null) {
